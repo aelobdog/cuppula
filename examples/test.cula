@@ -1,0 +1,16 @@
+@start:                 ; Label
+    ax = 0              ; Reg + Assign + Dec Number
+    ds = ax             ; Reg to Reg
+    si = 0x1000         ; Hex literal
+
+@loop:
+    al = u8[ds:si + 5]  ; Memory Read with displacement
+    if al == 0 goto @end ; Comparison + Keyword + Label
+    
+    io8[0x20] = al      ; IO Port Write
+    si += 1             ; Arithmetic
+    
+    if si <u 0xFFFF goto @loop ; Lookahead test (<u)
+    
+@end:
+    halt                ; Identifier

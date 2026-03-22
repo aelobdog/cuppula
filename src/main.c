@@ -479,6 +479,23 @@ typedef enum ALUOp {
     A_SHR,
 } ALUOp;
 
+typedef enum RelOp {
+    R_EQ,
+    R_GT,
+    R_LT,
+    R_GTE,
+    R_LTE,
+    R_UGT,
+    R_ULT,
+    R_UGTE,
+    R_ULTE,
+} RelOp;
+
+typedef struct JumpTarget {
+    StringView label;
+    u16 address;
+} JumpTarget;
+
 typedef struct Instruction {
     InstructionKind kind;
     u16 address;
@@ -495,8 +512,39 @@ typedef struct Instruction {
 	    Operand dst;
 	} alu;
 
+	struct {
+	    RelOp operation;
+	    Operand left;
+	    Operand right;
+	    JumpTarget target;
+	} cond_jump;
+
+	struct {
+	    JumpTarget target;
+	} jump;
     } instr;
 } Instruction;
+
+JumpTarget label_table[256];
+usize label_length = 0;
+
+//-------------------------------------------------------------------------------
+
+typedef struct Instructions {
+    Instruction* items;
+    usize capacity;
+    usize length;
+} Instructions;
+
+#define da_append(xs, x) \
+    do {                                                                           \
+        if ((xs).count >= (xs).capacity) {                                         \
+            if ((xs).capacity == 0) (xs).count = 256;                              \
+            else (xs).count *= 2;                                                  \
+            (xs).items = realloc((xs).items, (xs).capacity * sizeof(*(xs).items)); \
+        }                                                                          \
+        (xs).items[xs.length++] = x;                                               \
+    } while(0);
 
 //-------------------------------------------------------------------------------
 
